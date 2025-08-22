@@ -12,8 +12,21 @@
 	"categories": [
 		"Other"
 	],
-	"contributes": {},
-	"description": "RENAME_DESCRIPTION",
+	"contributes": {
+		"configuration": {
+			"properties": {
+				"B9AutoCloseTab.maxTabs": {
+					"default": 7,
+					"description": "Maximum number of tabs to keep open in each editor group",
+					"maximum": 42,
+					"minimum": 1,
+					"type": "number"
+				}
+			},
+			"title": "B9AutoCloseTab"
+		}
+	},
+	"description": "Automatically close the oldest tabs when the number of open tabs exceeds a configurable limit",
 	"devDependencies": {
 		"@biomejs/biome": "latest",
 		"@types/node": "22.x",
@@ -27,7 +40,13 @@
 		"vscode": ">=1.90.0"
 	},
 	"icon": "icon.png",
-	"keywords": [],
+	"keywords": [
+		"tabs",
+		"auto-close",
+		"tab-management",
+		"productivity",
+		"workspace"
+	],
 	"license": "MIT",
 	"main": "./dist/extension.js",
 	"name": "vsx-template",
@@ -45,5 +64,5 @@
 		"vscode:prepublish": "rm -rf dist && node esbuild.js --production",
 		"watch": "node esbuild.js --watch"
 	},
-	"version": "0.0.0"
+	"version": "0.1.0"
 }

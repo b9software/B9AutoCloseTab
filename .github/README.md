@@ -1,5 +1,7 @@
 # B9AutoCloseTab
 
+A lightweight VS Code extension that prevents tab overload by automatically closing the oldest tabs when you open too many.
+
 ## Tech Stack
 
 - **TypeScript** - Main development language

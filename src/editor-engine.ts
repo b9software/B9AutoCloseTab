@@ -1,5 +1,6 @@
-import type { OutputChannel } from 'vscode';
-import { commands, window } from 'vscode';
+import type { OutputChannel, Tab } from 'vscode';
+import { window } from 'vscode';
+import { APP_NAME } from './config';
 import { logError } from './utils';
 
 export class Engine {
@@ -10,15 +11,6 @@ export class Engine {
 		return Engine._instance;
 	}
 	private static _instance: Engine;
-
-	private async executeCommand<T>(command: string, ...args: unknown[]): Promise<T | undefined> {
-		try {
-			return await commands.executeCommand<T>(command, ...args);
-		} catch (error) {
-			logError(`Execute ${command}:`, error);
-			return undefined;
-		}
-	}
 
 	// MARK: Log
 
@@ -38,6 +30,23 @@ export class Engine {
 			.appendLine(message + (args.length > 0 ? ` ${args.map((arg) => formatArg(arg)).join(' ')}` : ''));
 	}
 
+	// MARK: Tab Management
+
+	async closeTab(tab: Tab): Promise<void> {
+		try {
+			await window.tabGroups.close(tab);
+			Engine.outputLine(`Close: ${tab.label}`);
+		} catch (error) {
+			logError('Failed to close tab:', { error, tab: tab.label });
+		}
+	}
+
+	async closeTabs(tabs: Tab[]) {
+		for (const tab of tabs) {
+			await this.closeTab(tab);
+		}
+	}
+
 	deactivate() {
 		if (this._outputChannel) {
 			this._outputChannel.dispose();
@@ -48,7 +57,7 @@ export class Engine {
 	private _outputChannel: OutputChannel | undefined;
 	private getOutputChannel(): OutputChannel {
 		if (!this._outputChannel) {
-			this._outputChannel = window.createOutputChannel('B9AutoCloseTab');
+			this._outputChannel = window.createOutputChannel(APP_NAME);
 		}
 		return this._outputChannel;
 	}
