@@ -48,7 +48,7 @@ export class Engine {
 	private _outputChannel: OutputChannel | undefined;
 	private getOutputChannel(): OutputChannel {
 		if (!this._outputChannel) {
-			this._outputChannel = window.createOutputChannel('RENAME_APP');
+			this._outputChannel = window.createOutputChannel('B9AutoCloseTab');
 		}
 		return this._outputChannel;
 	}

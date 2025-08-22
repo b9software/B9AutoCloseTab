@@ -3,8 +3,8 @@
 		"onStartupFinished"
 	],
 	"author": {
-		"name": "RENAME_AUTHOR",
-		"url": "https://github.com/RENAME_AUTHOR"
+		"name": "BB9z",
+		"url": "https://github.com/BB9z"
 	},
 	"capabilities": {
 		"virtualWorkspaces": true
@@ -22,7 +22,7 @@
 		"esbuild": "latest",
 		"typescript": "latest"
 	},
-	"displayName": "RENAME_APP",
+	"displayName": "B9AutoCloseTab",
 	"engines": {
 		"vscode": ">=1.90.0"
 	},
@@ -32,10 +32,10 @@
 	"main": "./dist/extension.js",
 	"name": "vsx-template",
 	"private": true,
-	"publisher": "RENAME_PUBLISHER",
+	"publisher": "b9software",
 	"repository": {
 		"type": "git",
-		"url": "RENAME_REPOSITORY"
+		"url": "https://github.com/b9software/B9AutoCloseTab.git"
 	},
 	"scripts": {
 		"check": "biome check --write --unsafe && pnpm compile",

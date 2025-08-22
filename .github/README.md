@@ -1,6 +1,4 @@
-# RENAME_APP
-
-Search `RENAME_` and replace them to meet your requirements.
+# B9AutoCloseTab
 
 ## Tech Stack
 
