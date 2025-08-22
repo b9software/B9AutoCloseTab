@@ -1,0 +1,49 @@
+{
+	"activationEvents": [
+		"onStartupFinished"
+	],
+	"author": {
+		"name": "RENAME_AUTHOR",
+		"url": "https://github.com/RENAME_AUTHOR"
+	},
+	"capabilities": {
+		"virtualWorkspaces": true
+	},
+	"categories": [
+		"Other"
+	],
+	"contributes": {},
+	"description": "RENAME_DESCRIPTION",
+	"devDependencies": {
+		"@biomejs/biome": "latest",
+		"@types/node": "22.x",
+		"@types/vscode": "1.90.0",
+		"@vscode/vsce": "latest",
+		"esbuild": "latest",
+		"typescript": "latest"
+	},
+	"displayName": "RENAME_APP",
+	"engines": {
+		"vscode": ">=1.90.0"
+	},
+	"icon": "icon.png",
+	"keywords": [],
+	"license": "MIT",
+	"main": "./dist/extension.js",
+	"name": "vsx-template",
+	"private": true,
+	"publisher": "RENAME_PUBLISHER",
+	"repository": {
+		"type": "git",
+		"url": "RENAME_REPOSITORY"
+	},
+	"scripts": {
+		"check": "biome check --write --unsafe && pnpm compile",
+		"compile": "tsc --noEmit && node esbuild.js",
+		"package": "vsce package",
+		"publish": "vsce publish",
+		"vscode:prepublish": "rm -rf dist && node esbuild.js --production",
+		"watch": "node esbuild.js --watch"
+	},
+	"version": "0.0.0"
+}
