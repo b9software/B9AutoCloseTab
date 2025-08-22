@@ -49,7 +49,7 @@
 	],
 	"license": "MIT",
 	"main": "./dist/extension.js",
-	"name": "vsx-template",
+	"name": "vsx-auto-close-tab",
 	"private": true,
 	"publisher": "b9software",
 	"repository": {
