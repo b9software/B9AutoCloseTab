@@ -19,4 +19,8 @@ export class ConfigManager {
 	private constructor() {
 		this._config = workspace.getConfiguration(APP_NAME);
 	}
+
+	reload() {
+		this._config = workspace.getConfiguration(APP_NAME);
+	}
 }

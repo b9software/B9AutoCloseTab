@@ -1,5 +1,5 @@
 import { type ExtensionContext, window, workspace } from 'vscode';
-import { APP_NAME } from './config';
+import { APP_NAME, ConfigManager } from './config';
 import { Engine } from './editor-engine';
 import { AutoCloseManager } from './manager';
 import { logInfo } from './utils';
@@ -12,6 +12,7 @@ export function activate(context: ExtensionContext) {
 		autoCloseManager,
 		workspace.onDidChangeConfiguration((event) => {
 			if (event.affectsConfiguration(APP_NAME)) {
+				ConfigManager.shared.reload();
 				autoCloseManager.setNeedClose();
 			}
 		}),
