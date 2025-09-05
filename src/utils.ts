@@ -1,7 +1,6 @@
 import * as path from 'node:path';
-import { inspect } from 'node:util';
-import { FoldingRange, Range, Selection, type Uri } from 'vscode';
-import { Engine } from './editor-engine';
+import { outputLine } from './editor-engine';
+import type { Uri } from './vscode';
 
 export async function delay(ms: number): Promise<void> {
 	return new Promise((resolve) => setTimeout(resolve, ms));
@@ -20,26 +19,26 @@ export function logDebug(message: string, ...args: unknown[]) {
 	if (DEBUG) {
 		const logMessage = `${timestamp()}🔵 ${message}`;
 		console.info(logMessage, ...args);
-		Engine.outputLine(logMessage, ...args);
+		outputLine(logMessage, ...args);
 	}
 }
 
 export function logInfo(message: string, ...args: unknown[]) {
 	const logMessage = `${timestamp()}${message}`;
 	console.info(logMessage, ...args);
-	Engine.outputLine(logMessage, ...args);
+	outputLine(logMessage, ...args);
 }
 
 export function logWarn(message: string, ...args: unknown[]) {
 	const logMessage = `${timestamp()}🟡 ${message}`;
 	console.warn(logMessage, ...args);
-	Engine.outputLine(logMessage, ...args);
+	outputLine(logMessage, ...args);
 }
 
 export function logError(title: string, error: unknown) {
 	const logMessage = `${timestamp()}🔴 ${title}`;
 	console.error(logMessage, error);
-	Engine.outputLine(logMessage, error);
+	outputLine(logMessage, error);
 }
 
 function timestamp() {
@@ -49,22 +48,4 @@ function timestamp() {
 	} else {
 		return '';
 	}
-}
-
-export function debugDescription(selection: Selection): string;
-export function debugDescription(foldingRange: FoldingRange): string;
-export function debugDescription(range: Range): string;
-export function debugDescription(value: FoldingRange | Range | Selection): string {
-	if (DEBUG) {
-		if (value instanceof FoldingRange) {
-			return `<FoldingRange L${value.start}-${value.end}>`;
-		} else if (value instanceof Selection) {
-			return `<Selection anchor: ${value.anchor.line}, active: ${value.active.line}, L${value.start.line}-${value.end.line}>`;
-		} else if (value instanceof Range) {
-			return `<Range L${value.start.line}-${value.end.line}>`;
-		} else {
-			return inspect(value);
-		}
-	}
-	return '';
 }

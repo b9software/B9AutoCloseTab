@@ -2,6 +2,10 @@
 
 <!-- https://keepachangelog.com -->
 
+## [0.4.0] - 2025-09-06
+
+- Reduce package size
+
 ## [0.3.0] - 2025-08-24
 
 - Fix issue where changes to configuration were not applied immediately.

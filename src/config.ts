@@ -1,26 +1,18 @@
-import { type WorkspaceConfiguration, workspace } from 'vscode';
+import { getConfiguration, type WorkspaceConfiguration } from './vscode';
 
 export const APP_NAME = 'B9AutoCloseTab';
 
-export class ConfigManager {
-	static get shared(): ConfigManager {
-		if (!ConfigManager._instance) {
-			ConfigManager._instance = new ConfigManager();
-		}
-		return ConfigManager._instance;
+let _config: WorkspaceConfiguration;
+function getConfig(): WorkspaceConfiguration {
+	if (!_config) {
+		_config = getConfiguration(APP_NAME);
 	}
-	private static _instance: ConfigManager;
+	return _config;
+}
+export function reloadConfig() {
+	_config = getConfiguration(APP_NAME);
+}
 
-	static get maxTabCount(): number {
-		return ConfigManager.shared._config.get('maxTabs', 7);
-	}
-
-	private _config: WorkspaceConfiguration;
-	private constructor() {
-		this._config = workspace.getConfiguration(APP_NAME);
-	}
-
-	reload() {
-		this._config = workspace.getConfiguration(APP_NAME);
-	}
+export function getMaxTabCount(): number {
+	return getConfig().get('maxTabs', 7);
 }

@@ -1,8 +1,8 @@
-import { type ExtensionContext, window, workspace } from 'vscode';
-import { APP_NAME, ConfigManager } from './config';
-import { Engine } from './editor-engine';
+import { APP_NAME, reloadConfig } from './config';
+import { releaseOutputChannel } from './editor-engine';
 import { AutoCloseManager } from './manager';
 import { logInfo } from './utils';
+import { type ExtensionContext, TabGroups, workspace } from './vscode';
 
 export function activate(context: ExtensionContext) {
 	logInfo(`${APP_NAME} is activating...`);
@@ -12,14 +12,14 @@ export function activate(context: ExtensionContext) {
 		autoCloseManager,
 		workspace.onDidChangeConfiguration((event) => {
 			if (event.affectsConfiguration(APP_NAME)) {
-				ConfigManager.shared.reload();
+				reloadConfig();
 				autoCloseManager.setNeedClose();
 			}
 		}),
-		window.tabGroups.onDidChangeTabs(() => {
+		TabGroups.onDidChangeTabs(() => {
 			autoCloseManager.setNeedClose();
 		}),
-		window.tabGroups.onDidChangeTabGroups(() => {
+		TabGroups.onDidChangeTabGroups(() => {
 			autoCloseManager.setNeedClose();
 		}),
 	);
@@ -28,5 +28,5 @@ export function activate(context: ExtensionContext) {
 
 export function deactivate() {
 	logInfo(`${APP_NAME} is deactivating...`);
-	Engine.shared.deactivate();
+	releaseOutputChannel();
 }

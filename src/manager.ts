@@ -1,8 +1,8 @@
-import type { Tab, TabGroup } from 'vscode';
-import { TabInputTerminal, TabInputWebview, window } from 'vscode';
-import { ConfigManager } from './config';
-import { Engine } from './editor-engine';
+import { getMaxTabCount } from './config';
+import { closeTabs } from './editor-engine';
 import { logDebug } from './utils';
+import type { Tab, TabGroup } from './vscode';
+import { TabGroups, TabInputTerminal, TabInputWebview } from './vscode';
 
 export class AutoCloseManager {
 	static get shared(): AutoCloseManager {
@@ -25,29 +25,29 @@ export class AutoCloseManager {
 
 		this._timeout = setTimeout(async () => {
 			if (!this._needClose) return;
-			await this.performClose();
+			await this._perform();
 			this._needClose = false;
 			this._timeout = undefined;
 		}, 300);
 	}
 
-	private async performClose(): Promise<void> {
-		logDebug('On performClose');
-		for (const group of window.tabGroups.all) {
-			await this.closeExcessTabsInGroup(group);
+	private async _perform(): Promise<void> {
+		DEBUG && logDebug('On performClose');
+		for (const group of TabGroups.all) {
+			await this._closeExcessTabsInGroup(group);
 		}
-		this.updateTracking();
-		this.debugTracking();
+		this._updateTracking();
+		DEBUG && this._debugTracking();
 	}
 
-	private async closeExcessTabsInGroup(group: TabGroup): Promise<void> {
-		const maxTabs = ConfigManager.maxTabCount;
+	private async _closeExcessTabsInGroup(group: TabGroup): Promise<void> {
+		const maxTabs = getMaxTabCount();
 
 		// Update time records while processing the group - only track supported tabs
 		const groupTabs: { tab: Tab; tabKey: string; openTime: number }[] = [];
 
 		for (const tab of group.tabs) {
-			const tabKey = this.getTabKey(group, tab);
+			const tabKey = this._getTabKey(group, tab);
 			if (!tabKey) continue; // Skip untrackable
 
 			const openTime = this._tabOpenTimes.get(tabKey);
@@ -65,12 +65,13 @@ export class AutoCloseManager {
 			return !tab.isActive && !tab.isDirty && !tab.isPinned;
 		});
 
-		logDebug(
-			`Group ${this.getGroupId(group)}: ${groupTabs.length} total tabs, ${closableTabs.length} closable, max allowed: ${maxTabs}`,
-		);
+		DEBUG &&
+			logDebug(
+				`Group ${this._getGroupId(group)}: ${groupTabs.length} total tabs, ${closableTabs.length} closable, max allowed: ${maxTabs}`,
+			);
 
 		if (!closableTabs.length) {
-			logDebug(`No closable in group ${this.getGroupId(group)}`);
+			DEBUG && logDebug(`No closable in group ${this._getGroupId(group)}`);
 			return;
 		}
 
@@ -79,7 +80,7 @@ export class AutoCloseManager {
 		const actualTabsToClose = Math.min(tabsToCloseCount, closableTabs.length);
 
 		if (actualTabsToClose <= 0) {
-			logDebug(`No tabs to close in group ${this.getGroupId(group)}`);
+			DEBUG && logDebug(`No tabs to close in group ${this._getGroupId(group)}`);
 			return;
 		}
 
@@ -87,17 +88,17 @@ export class AutoCloseManager {
 		closableTabs.sort((a, b) => a.openTime - b.openTime);
 		const tabsToClose = closableTabs.slice(0, actualTabsToClose).map(({ tab }) => tab);
 
-		logDebug(`Closing ${tabsToClose.length} tabs in group ${this.getGroupId(group)}`);
-		await Engine.shared.closeTabs(tabsToClose);
+		DEBUG && logDebug(`Closing ${tabsToClose.length} tabs in group ${this._getGroupId(group)}`);
+		await closeTabs(tabsToClose);
 	}
 
-	private updateTracking(): void {
+	private _updateTracking(): void {
 		const currentTabKeys = new Set<string>();
 
 		// Collect all current tab keys
-		for (const group of window.tabGroups.all) {
+		for (const group of TabGroups.all) {
 			for (const tab of group.tabs) {
-				const tabKey = this.getTabKey(group, tab);
+				const tabKey = this._getTabKey(group, tab);
 				if (tabKey) {
 					currentTabKeys.add(tabKey);
 				}
@@ -111,15 +112,15 @@ export class AutoCloseManager {
 			}
 		}
 
-		logDebug(`Cleaned up tab records, ${this._tabOpenTimes.size} tabs tracked`);
+		DEBUG && logDebug(`Cleaned up tab records, ${this._tabOpenTimes.size} tabs tracked`);
 	}
 
-	private getGroupId(group: TabGroup): string {
+	private _getGroupId(group: TabGroup): string {
 		return `group-${group.viewColumn || 1}`;
 	}
 
-	private getTabKey(group: TabGroup, tab: Tab): string | undefined {
-		const groupId = this.getGroupId(group);
+	private _getTabKey(group: TabGroup, tab: Tab): string | undefined {
+		const groupId = this._getGroupId(group);
 		const input = tab.input as object;
 		if (input instanceof TabInputTerminal || input instanceof TabInputWebview) {
 			return undefined;
@@ -130,7 +131,7 @@ export class AutoCloseManager {
 		return `${groupId}/L:${tab.label}`;
 	}
 
-	private debugTracking(): void {
+	private _debugTracking(): void {
 		if (DEBUG) {
 			for (const [tabKey, time] of this._tabOpenTimes) {
 				const formattedTime = new Date(time).toLocaleString();
