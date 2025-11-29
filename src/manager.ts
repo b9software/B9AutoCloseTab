@@ -15,7 +15,7 @@ export class AutoCloseManager {
 
 	private _needClose = false;
 	private _timeout: NodeJS.Timeout | undefined;
-	private _tabOpenTimes = new Map<string, number>();
+	private _tabLastActiveTimes = new Map<string, number>();
 
 	private constructor() {}
 
@@ -31,6 +31,17 @@ export class AutoCloseManager {
 		}, 300);
 	}
 
+	/**
+	 * Update the last active time for a tab when it becomes active
+	 */
+	updateTabActivation(group: TabGroup, tab: Tab): void {
+		const tabKey = this._getTabKey(group, tab);
+		if (tabKey) {
+			this._tabLastActiveTimes.set(tabKey, Date.now());
+			DEBUG && logDebug(`Updated activation time for tab: ${tabKey}`);
+		}
+	}
+
 	private async _perform(): Promise<void> {
 		DEBUG && logDebug('On performClose');
 		for (const group of TabGroups.all) {
@@ -44,17 +55,17 @@ export class AutoCloseManager {
 		const maxTabs = getMaxTabCount();
 
 		// Update time records while processing the group - only track supported tabs
-		const groupTabs: { tab: Tab; tabKey: string; openTime: number }[] = [];
+		const groupTabs: { tab: Tab; tabKey: string; lastActiveTime: number }[] = [];
 
 		for (const tab of group.tabs) {
 			const tabKey = this._getTabKey(group, tab);
 			if (!tabKey) continue; // Skip untrackable
 
-			const openTime = this._tabOpenTimes.get(tabKey);
-			if (!openTime) {
-				this._tabOpenTimes.set(tabKey, Date.now());
+			const lastActiveTime = this._tabLastActiveTimes.get(tabKey);
+			if (!lastActiveTime) {
+				this._tabLastActiveTimes.set(tabKey, Date.now());
 			}
-			groupTabs.push({ openTime: openTime ?? Date.now(), tab, tabKey });
+			groupTabs.push({ lastActiveTime: lastActiveTime ?? Date.now(), tab, tabKey });
 		}
 
 		if (groupTabs.length <= maxTabs) {
@@ -84,8 +95,9 @@ export class AutoCloseManager {
 			return;
 		}
 
-		// Sort closable tabs by open time (oldest first)
-		closableTabs.sort((a, b) => a.openTime - b.openTime);
+		// Sort closable tabs by last active time (least recently used first)
+		closableTabs.sort((a, b) => a.lastActiveTime - b.lastActiveTime);
+
 		const tabsToClose = closableTabs.slice(0, actualTabsToClose).map(({ tab }) => tab);
 
 		DEBUG && logDebug(`Closing ${tabsToClose.length} tabs in group ${this._getGroupId(group)}`);
@@ -106,13 +118,13 @@ export class AutoCloseManager {
 		}
 
 		// Remove records for tabs that no longer exist
-		for (const [tabKey] of this._tabOpenTimes) {
+		for (const [tabKey] of this._tabLastActiveTimes) {
 			if (!currentTabKeys.has(tabKey)) {
-				this._tabOpenTimes.delete(tabKey);
+				this._tabLastActiveTimes.delete(tabKey);
 			}
 		}
 
-		DEBUG && logDebug(`Cleaned up tab records, ${this._tabOpenTimes.size} tabs tracked`);
+		DEBUG && logDebug(`Cleaned up tab records, ${this._tabLastActiveTimes.size} tabs tracked`);
 	}
 
 	private _getGroupId(group: TabGroup): string {
@@ -133,9 +145,9 @@ export class AutoCloseManager {
 
 	private _debugTracking(): void {
 		if (DEBUG) {
-			for (const [tabKey, time] of this._tabOpenTimes) {
+			for (const [tabKey, time] of this._tabLastActiveTimes) {
 				const formattedTime = new Date(time).toLocaleString();
-				logDebug(`Tab: ${tabKey}, Opened at: ${formattedTime}`);
+				logDebug(`Tab: ${tabKey}, Last active at: ${formattedTime}`);
 			}
 		}
 	}
@@ -145,6 +157,6 @@ export class AutoCloseManager {
 			clearTimeout(this._timeout);
 			this._timeout = undefined;
 		}
-		this._tabOpenTimes.clear();
+		this._tabLastActiveTimes.clear();
 	}
 }

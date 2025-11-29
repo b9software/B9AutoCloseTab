@@ -2,6 +2,10 @@
 
 <!-- https://keepachangelog.com -->
 
+## [0.5.0] - 2025-11-29
+
+- Fix: Close tabs by last-viewed time instead of open order.
+
 ## [0.4.0] - 2025-09-06
 
 - Reduce package size

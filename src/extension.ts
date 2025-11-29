@@ -16,7 +16,16 @@ export function activate(context: ExtensionContext) {
 				autoCloseManager.setNeedClose();
 			}
 		}),
-		TabGroups.onDidChangeTabs(() => {
+		TabGroups.onDidChangeTabs((e) => {
+			// Track tab activation for LRU closing
+			for (const tab of e.changed) {
+				if (tab.isActive) {
+					const group = TabGroups.all.find((g) => g.tabs.includes(tab));
+					if (group) {
+						autoCloseManager.updateTabActivation(group, tab);
+					}
+				}
+			}
 			autoCloseManager.setNeedClose();
 		}),
 		TabGroups.onDidChangeTabGroups(() => {
