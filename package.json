@@ -29,7 +29,7 @@
 	"description": "Automatically close the oldest tabs when the number of open tabs exceeds a configurable limit",
 	"devDependencies": {
 		"@biomejs/biome": "latest",
-		"@types/node": "22.x",
+		"@types/node": "^22.19",
 		"@types/vscode": "1.90.0",
 		"@vscode/vsce": "latest",
 		"esbuild": "latest",
