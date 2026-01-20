@@ -2,18 +2,6 @@
 
 <!-- https://keepachangelog.com -->
 
-## [0.5.0] - 2025-11-29
+## [1.0.0] - 2026-01-20
 
-- Fix: Close tabs by last-viewed time instead of open order.
-
-## [0.4.0] - 2025-09-06
-
-- Reduce package size
-
-## [0.3.0] - 2025-08-24
-
-- Fix issue where changes to configuration were not applied immediately.
-
-## [0.2.0] - 2025-08-23
-
-- Initial Beta release.
+- Time to release the stable version. I hope no more updates are needed in the future.
